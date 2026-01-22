@@ -34,6 +34,7 @@ export default function LessonsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("userData") || "null");
@@ -42,6 +43,12 @@ export default function LessonsPage() {
       return;
     }
     setUserData(savedData);
+
+    // Load theme from settings
+    const savedSettings = JSON.parse(localStorage.getItem("userSettings") || "null");
+    if (savedSettings?.appearance?.theme) {
+      setIsDarkMode(savedSettings.appearance.theme === "dark");
+    }
   }, [router]);
 
   const categories: Category[] = [
@@ -220,7 +227,10 @@ export default function LessonsPage() {
   }
 
   return (
-    <div style={styles.pageWrapper}>
+    <div style={{
+      ...styles.pageWrapper,
+      background: isDarkMode ? "#0f0f23" : "#f1f5f9",
+    }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -236,7 +246,7 @@ export default function LessonsPage() {
         }
         .lesson-card:hover {
           transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+          box-shadow: ${isDarkMode ? "0 20px 40px rgba(0, 0, 0, 0.4)" : "0 20px 40px rgba(0, 0, 0, 0.12)"};
           border-color: #667eea;
         }
         .lesson-card:hover .lesson-icon {
@@ -310,40 +320,40 @@ export default function LessonsPage() {
         {/* Page Header */}
         <header style={styles.pageHeader}>
           <div>
-            <h1 style={styles.pageTitle}>📖 Lessons</h1>
-            <p style={styles.pageSubtitle}>Explore courses to build your skills</p>
+            <h1 style={{ ...styles.pageTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>📖 Lessons</h1>
+            <p style={{ ...styles.pageSubtitle, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Explore courses to build your skills</p>
           </div>
         </header>
 
         {/* Stats Section */}
         <section style={styles.statsSection}>
           <div className="stats-grid" style={styles.statsGrid}>
-            <div style={styles.statCard}>
+            <div style={{ ...styles.statCard, background: isDarkMode ? "#1e1e35" : "white" }}>
               <span style={styles.statIcon}>📚</span>
               <div style={styles.statInfo}>
-                <span style={styles.statValue}>{lessons.length}</span>
-                <span style={styles.statLabel}>Total Lessons</span>
+                <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{lessons.length}</span>
+                <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Total Lessons</span>
               </div>
             </div>
-            <div style={styles.statCard}>
+            <div style={{ ...styles.statCard, background: isDarkMode ? "#1e1e35" : "white" }}>
               <span style={styles.statIcon}>✅</span>
               <div style={styles.statInfo}>
-                <span style={styles.statValue}>{completedLessons}</span>
-                <span style={styles.statLabel}>Completed</span>
+                <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{completedLessons}</span>
+                <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Completed</span>
               </div>
             </div>
-            <div style={styles.statCard}>
+            <div style={{ ...styles.statCard, background: isDarkMode ? "#1e1e35" : "white" }}>
               <span style={styles.statIcon}>🔄</span>
               <div style={styles.statInfo}>
-                <span style={styles.statValue}>{inProgressLessons}</span>
-                <span style={styles.statLabel}>In Progress</span>
+                <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{inProgressLessons}</span>
+                <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>In Progress</span>
               </div>
             </div>
-            <div style={styles.statCard}>
+            <div style={{ ...styles.statCard, background: isDarkMode ? "#1e1e35" : "white" }}>
               <span style={styles.statIcon}>⏱️</span>
               <div style={styles.statInfo}>
-                <span style={styles.statValue}>{totalHours.toFixed(0)}h</span>
-                <span style={styles.statLabel}>Total Content</span>
+                <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{totalHours.toFixed(0)}h</span>
+                <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Total Content</span>
               </div>
             </div>
           </div>
@@ -359,11 +369,16 @@ export default function LessonsPage() {
                 placeholder="Search lessons..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={styles.searchInput}
+                style={{
+                  ...styles.searchInput,
+                  background: isDarkMode ? "#1e1e35" : "white",
+                  border: isDarkMode ? "2px solid #2d2d44" : "2px solid #e5e7eb",
+                  color: isDarkMode ? "#e5e7eb" : "#1f2937",
+                }}
                 className="search-input"
               />
             </div>
-            <div style={styles.resultsCount}>
+            <div style={{ ...styles.resultsCount, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>
               Showing {filteredLessons.length} of {lessons.length} lessons
             </div>
           </div>
@@ -379,9 +394,9 @@ export default function LessonsPage() {
                   ...styles.categoryBtn,
                   background: selectedCategory === category.id 
                     ? `linear-gradient(135deg, ${category.color} 0%, ${category.color}dd 100%)`
-                    : "white",
-                  color: selectedCategory === category.id ? "white" : "#374151",
-                  borderColor: selectedCategory === category.id ? category.color : "#e5e7eb",
+                    : isDarkMode ? "#1e1e35" : "white",
+                  color: selectedCategory === category.id ? "white" : isDarkMode ? "#e5e7eb" : "#374151",
+                  borderColor: selectedCategory === category.id ? category.color : isDarkMode ? "#2d2d44" : "#e5e7eb",
                 }}
               >
                 <span style={styles.categoryIcon}>{category.icon}</span>
@@ -401,12 +416,17 @@ export default function LessonsPage() {
                 style={{
                   ...styles.lessonCard,
                   opacity: lesson.isLocked ? 0.7 : 1,
+                  background: isDarkMode ? "#1e1e35" : "white",
+                  border: isDarkMode ? "2px solid #2d2d44" : "2px solid #f3f4f6",
                 }}
               >
                 {lesson.isLocked && (
-                  <div style={styles.lockedOverlay}>
+                  <div style={{
+                    ...styles.lockedOverlay,
+                    background: isDarkMode ? "rgba(15, 15, 35, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                  }}>
                     <span style={styles.lockIcon}>🔒</span>
-                    <span style={styles.lockText}>Complete prerequisites to unlock</span>
+                    <span style={{ ...styles.lockText, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Complete prerequisites to unlock</span>
                   </div>
                 )}
                 
@@ -417,12 +437,12 @@ export default function LessonsPage() {
                   </span>
                 </div>
                 
-                <h3 style={styles.lessonTitle}>{lesson.title}</h3>
-                <p style={styles.lessonDesc}>{lesson.description}</p>
+                <h3 style={{ ...styles.lessonTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{lesson.title}</h3>
+                <p style={{ ...styles.lessonDesc, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{lesson.description}</p>
                 
                 <div style={styles.lessonMeta}>
-                  <span style={styles.metaItem}>⏱️ {lesson.duration}</span>
-                  <span style={styles.metaItem}>
+                  <span style={{ ...styles.metaItem, color: isDarkMode ? "#6b7280" : "#9ca3af" }}>⏱️ {lesson.duration}</span>
+                  <span style={{ ...styles.metaItem, color: isDarkMode ? "#6b7280" : "#9ca3af" }}>
                     {categories.find(c => c.id === lesson.category)?.icon} {categories.find(c => c.id === lesson.category)?.name}
                   </span>
                 </div>
@@ -430,10 +450,13 @@ export default function LessonsPage() {
                 {/* Progress Bar */}
                 <div style={styles.progressSection}>
                   <div style={styles.progressHeader}>
-                    <span style={styles.progressLabel}>Progress</span>
-                    <span style={styles.progressPercent}>{lesson.progress}%</span>
+                    <span style={{ ...styles.progressLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Progress</span>
+                    <span style={{ ...styles.progressPercent, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{lesson.progress}%</span>
                   </div>
-                  <div style={styles.progressBarBg}>
+                  <div style={{
+                    ...styles.progressBarBg,
+                    background: isDarkMode ? "#2d2d44" : "#e5e7eb",
+                  }}>
                     <div
                       style={{
                         ...styles.progressBarFill,
@@ -466,10 +489,13 @@ export default function LessonsPage() {
           </div>
 
           {filteredLessons.length === 0 && (
-            <div style={styles.emptyState}>
+            <div style={{
+              ...styles.emptyState,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               <span style={styles.emptyIcon}>🔍</span>
-              <h3 style={styles.emptyTitle}>No lessons found</h3>
-              <p style={styles.emptyText}>Try adjusting your search or filter criteria</p>
+              <h3 style={{ ...styles.emptyTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>No lessons found</h3>
+              <p style={{ ...styles.emptyText, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Try adjusting your search or filter criteria</p>
               <button
                 onClick={() => {
                   setSearchQuery("");

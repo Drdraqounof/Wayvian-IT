@@ -23,6 +23,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("userData") || "null");
@@ -31,6 +32,12 @@ export default function Dashboard() {
       return;
     }
     setUserData(savedData);
+
+    // Load theme from settings
+    const savedSettings = JSON.parse(localStorage.getItem("userSettings") || "null");
+    if (savedSettings?.appearance?.theme) {
+      setIsDarkMode(savedSettings.appearance.theme === "dark");
+    }
   }, [router]);
 
   const careerPaths: CareerPath[] = [
@@ -95,7 +102,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={styles.dashboardWrapper}>
+    <div style={{
+      ...styles.dashboardWrapper,
+      background: isDarkMode ? "#0f0f23" : "#f1f5f9",
+    }}>
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -114,15 +124,15 @@ export default function Dashboard() {
         }
         .card-hover:hover {
           transform: translateY(-5px);
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+          box-shadow: ${isDarkMode ? "0 20px 40px rgba(0, 0, 0, 0.4)" : "0 20px 40px rgba(0, 0, 0, 0.15)"};
         }
         .task-item:hover {
-          background: #f8fafc;
+          background: ${isDarkMode ? "#2d2d44" : "#f8fafc"};
           transform: translateX(5px);
         }
         .career-card:hover {
           border-color: #667eea;
-          background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+          background: ${isDarkMode ? "linear-gradient(135deg, #1e1e35 0%, #16162a 100%)" : "linear-gradient(135deg, #f8fafc 0%, #fff 100%)"};
         }
         @media (max-width: 1024px) {
           .dashboard-grid {
@@ -159,15 +169,24 @@ export default function Dashboard() {
         {/* Header */}
         <header style={styles.header}>
           <div>
-            <h1 style={styles.greeting}>
+            <h1 style={{
+              ...styles.greeting,
+              color: isDarkMode ? "#e5e7eb" : "#1f2937",
+            }}>
               Welcome back, {userData.firstName}! 👋
             </h1>
-            <p style={styles.subGreeting}>
+            <p style={{
+              ...styles.subGreeting,
+              color: isDarkMode ? "#9ca3af" : "#6b7280",
+            }}>
               Here's what's happening with your career journey today.
             </p>
           </div>
           <div style={styles.headerRight}>
-            <button style={styles.notificationBtn}>
+            <button style={{
+              ...styles.notificationBtn,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               🔔
               <span style={styles.notificationBadge}>3</span>
             </button>
@@ -179,32 +198,48 @@ export default function Dashboard() {
 
         {/* Stats Cards */}
         <div className="stats-grid" style={styles.statsGrid}>
-          <div className="card-hover" style={{ ...styles.statCard, borderTop: "4px solid #667eea" }}>
+          <div className="card-hover" style={{ 
+            ...styles.statCard, 
+            borderTop: "4px solid #667eea",
+            background: isDarkMode ? "#1e1e35" : "white",
+          }}>
             <div style={styles.statIcon}>🎯</div>
             <div style={styles.statInfo}>
-              <span style={styles.statValue}>92%</span>
-              <span style={styles.statLabel}>Career Match</span>
+              <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>92%</span>
+              <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Career Match</span>
             </div>
           </div>
-          <div className="card-hover" style={{ ...styles.statCard, borderTop: "4px solid #10b981" }}>
+          <div className="card-hover" style={{ 
+            ...styles.statCard, 
+            borderTop: "4px solid #10b981",
+            background: isDarkMode ? "#1e1e35" : "white",
+          }}>
             <div style={styles.statIcon}>📚</div>
             <div style={styles.statInfo}>
-              <span style={styles.statValue}>12</span>
-              <span style={styles.statLabel}>Courses Completed</span>
+              <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>12</span>
+              <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Courses Completed</span>
             </div>
           </div>
-          <div className="card-hover" style={{ ...styles.statCard, borderTop: "4px solid #f59e0b" }}>
+          <div className="card-hover" style={{ 
+            ...styles.statCard, 
+            borderTop: "4px solid #f59e0b",
+            background: isDarkMode ? "#1e1e35" : "white",
+          }}>
             <div style={styles.statIcon}>🏆</div>
             <div style={styles.statInfo}>
-              <span style={styles.statValue}>8</span>
-              <span style={styles.statLabel}>Badges Earned</span>
+              <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>8</span>
+              <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Badges Earned</span>
             </div>
           </div>
-          <div className="card-hover" style={{ ...styles.statCard, borderTop: "4px solid #ec4899" }}>
+          <div className="card-hover" style={{ 
+            ...styles.statCard, 
+            borderTop: "4px solid #ec4899",
+            background: isDarkMode ? "#1e1e35" : "white",
+          }}>
             <div style={styles.statIcon}>⏱️</div>
             <div style={styles.statInfo}>
-              <span style={styles.statValue}>45h</span>
-              <span style={styles.statLabel}>Learning Time</span>
+              <span style={{ ...styles.statValue, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>45h</span>
+              <span style={{ ...styles.statLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Learning Time</span>
             </div>
           </div>
         </div>
@@ -214,26 +249,37 @@ export default function Dashboard() {
           {/* Left Column */}
           <div style={styles.leftColumn}>
             {/* Career Matches */}
-            <section className="card-hover" style={styles.section}>
+            <section className="card-hover" style={{
+              ...styles.section,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>🎯 Top Career Matches</h2>
+                <h2 style={{ ...styles.sectionTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>🎯 Top Career Matches</h2>
                 <button style={styles.viewAllBtn}>View All →</button>
               </div>
               <div className="careers-grid" style={styles.careersGrid}>
                 {careerPaths.map((career, index) => (
-                  <div key={index} className="career-card" style={styles.careerCard}>
+                  <div key={index} className="career-card" style={{
+                    ...styles.careerCard,
+                    background: isDarkMode ? "#16162a" : "white",
+                    borderColor: isDarkMode ? "#2d2d44" : "#e5e7eb",
+                  }}>
                     <div style={styles.careerHeader}>
                       <span style={styles.careerIcon}>{career.icon}</span>
                       <div style={styles.matchBadge}>
                         <span style={styles.matchPercent}>{career.match}%</span>
-                        <span style={styles.matchLabel}>Match</span>
+                        <span style={{ ...styles.matchLabel, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Match</span>
                       </div>
                     </div>
-                    <h3 style={styles.careerTitle}>{career.title}</h3>
-                    <p style={styles.careerDesc}>{career.description}</p>
+                    <h3 style={{ ...styles.careerTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{career.title}</h3>
+                    <p style={{ ...styles.careerDesc, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{career.description}</p>
                     <div style={styles.skillTags}>
                       {career.skills.slice(0, 3).map((skill, i) => (
-                        <span key={i} style={styles.skillTag}>{skill}</span>
+                        <span key={i} style={{
+                          ...styles.skillTag,
+                          background: isDarkMode ? "rgba(102, 126, 234, 0.2)" : "#eff6ff",
+                          color: isDarkMode ? "#a5b4fc" : "#3b82f6",
+                        }}>{skill}</span>
                       ))}
                     </div>
                     <button style={styles.exploreBtn}>Explore Path →</button>
@@ -243,9 +289,12 @@ export default function Dashboard() {
             </section>
 
             {/* Learning Progress */}
-            <section className="card-hover" style={styles.section}>
+            <section className="card-hover" style={{
+              ...styles.section,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>📈 Learning Progress</h2>
+                <h2 style={{ ...styles.sectionTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>📈 Learning Progress</h2>
                 <button style={styles.viewAllBtn}>See All Courses →</button>
               </div>
               <div style={styles.progressList}>
@@ -253,10 +302,13 @@ export default function Dashboard() {
                   <div key={index} style={styles.progressItem}>
                     <div style={styles.progressHeader}>
                       <span style={styles.progressIcon}>{item.icon}</span>
-                      <span style={styles.progressTitle}>{item.course}</span>
-                      <span style={styles.progressPercent}>{item.progress}%</span>
+                      <span style={{ ...styles.progressTitle, color: isDarkMode ? "#e5e7eb" : "#374151" }}>{item.course}</span>
+                      <span style={{ ...styles.progressPercent, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{item.progress}%</span>
                     </div>
-                    <div style={styles.progressBarBg}>
+                    <div style={{
+                      ...styles.progressBarBg,
+                      background: isDarkMode ? "#2d2d44" : "#e5e7eb",
+                    }}>
                       <div
                         style={{
                           ...styles.progressBarFill,
@@ -274,17 +326,23 @@ export default function Dashboard() {
           {/* Right Column */}
           <div style={styles.rightColumn}>
             {/* Upcoming Tasks */}
-            <section className="card-hover" style={styles.section}>
+            <section className="card-hover" style={{
+              ...styles.section,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>📋 Upcoming Tasks</h2>
+                <h2 style={{ ...styles.sectionTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>📋 Upcoming Tasks</h2>
               </div>
               <div style={styles.taskList}>
                 {upcomingTasks.map((task) => (
-                  <div key={task.id} className="task-item" style={styles.taskItem}>
+                  <div key={task.id} className="task-item" style={{
+                    ...styles.taskItem,
+                    background: isDarkMode ? "#16162a" : "#f9fafb",
+                  }}>
                     <span style={styles.taskIcon}>{task.icon}</span>
                     <div style={styles.taskInfo}>
-                      <span style={styles.taskTitle}>{task.title}</span>
-                      <span style={styles.taskDeadline}>{task.deadline}</span>
+                      <span style={{ ...styles.taskTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>{task.title}</span>
+                      <span style={{ ...styles.taskDeadline, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{task.deadline}</span>
                     </div>
                     <span
                       style={{
@@ -297,21 +355,29 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <button style={styles.addTaskBtn}>+ Add New Task</button>
+              <button style={{
+                ...styles.addTaskBtn,
+                background: isDarkMode ? "#16162a" : "#f3f4f6",
+                border: isDarkMode ? "2px dashed #3d3d5c" : "2px dashed #d1d5db",
+                color: isDarkMode ? "#9ca3af" : "#6b7280",
+              }}>+ Add New Task</button>
             </section>
 
             {/* Recent Activity */}
-            <section className="card-hover" style={styles.section}>
+            <section className="card-hover" style={{
+              ...styles.section,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
               <div style={styles.sectionHeader}>
-                <h2 style={styles.sectionTitle}>🕐 Recent Activity</h2>
+                <h2 style={{ ...styles.sectionTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>🕐 Recent Activity</h2>
               </div>
               <div style={styles.activityList}>
                 {recentActivity.map((activity, index) => (
                   <div key={index} style={styles.activityItem}>
                     <span style={styles.activityIcon}>{activity.icon}</span>
                     <div style={styles.activityInfo}>
-                      <span style={styles.activityAction}>{activity.action}</span>
-                      <span style={styles.activityTime}>{activity.time}</span>
+                      <span style={{ ...styles.activityAction, color: isDarkMode ? "#e5e7eb" : "#374151" }}>{activity.action}</span>
+                      <span style={{ ...styles.activityTime, color: isDarkMode ? "#6b7280" : "#9ca3af" }}>{activity.time}</span>
                     </div>
                   </div>
                 ))}
@@ -319,19 +385,42 @@ export default function Dashboard() {
             </section>
 
             {/* Quick Actions */}
-            <section className="card-hover" style={styles.section}>
-              <h2 style={styles.sectionTitle}>⚡ Quick Actions</h2>
+            <section className="card-hover" style={{
+              ...styles.section,
+              background: isDarkMode ? "#1e1e35" : "white",
+            }}>
+              <h2 style={{ ...styles.sectionTitle, color: isDarkMode ? "#e5e7eb" : "#1f2937" }}>⚡ Quick Actions</h2>
               <div style={styles.quickActions}>
-                <button onClick={() => router.push('/lessons')} style={styles.quickActionBtn}>
+                <button onClick={() => router.push('/lessons')} style={{
+                  ...styles.quickActionBtn,
+                  background: isDarkMode ? "linear-gradient(135deg, #16162a 0%, #1e1e35 100%)" : "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                  border: isDarkMode ? "1px solid #2d2d44" : "1px solid #e5e7eb",
+                  color: isDarkMode ? "#e5e7eb" : "#374151",
+                }}>
                   📖 Browse Lessons
                 </button>
-                <button style={styles.quickActionBtn}>
+                <button style={{
+                  ...styles.quickActionBtn,
+                  background: isDarkMode ? "linear-gradient(135deg, #16162a 0%, #1e1e35 100%)" : "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                  border: isDarkMode ? "1px solid #2d2d44" : "1px solid #e5e7eb",
+                  color: isDarkMode ? "#e5e7eb" : "#374151",
+                }}>
                   📝 Take Assessment
                 </button>
-                <button style={styles.quickActionBtn}>
+                <button style={{
+                  ...styles.quickActionBtn,
+                  background: isDarkMode ? "linear-gradient(135deg, #16162a 0%, #1e1e35 100%)" : "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                  border: isDarkMode ? "1px solid #2d2d44" : "1px solid #e5e7eb",
+                  color: isDarkMode ? "#e5e7eb" : "#374151",
+                }}>
                   👥 Find Mentor
                 </button>
-                <button style={styles.quickActionBtn}>
+                <button style={{
+                  ...styles.quickActionBtn,
+                  background: isDarkMode ? "linear-gradient(135deg, #16162a 0%, #1e1e35 100%)" : "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                  border: isDarkMode ? "1px solid #2d2d44" : "1px solid #e5e7eb",
+                  color: isDarkMode ? "#e5e7eb" : "#374151",
+                }}>
                   💼 Job Board
                 </button>
               </div>
