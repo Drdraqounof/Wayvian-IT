@@ -1,4 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { 
+  formatCodeWithLineNumbers, 
+  findElements, 
+  buildCodeSummary,
+  extractLineNumbersFromResponse,
+  validateLineNumbers 
+} from "@/app/utils/codeProcessor";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -25,6 +32,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Pre-scan code for common elements to help AI
+    let codeSummary = "";
+    let formattedCode = "";
+    
+    if (code) {
+      formattedCode = formatCodeWithLineNumbers(code);
+      codeSummary = buildCodeSummary(code, language || "javascript");
+    }
+
     // System prompt for the coding assistant
     const languageNames: { [key: string]: string } = {
       javascript: "JavaScript",
@@ -35,7 +51,19 @@ export async function POST(request: NextRequest) {
     };
     const currentLanguage = languageNames[language] || language || "code";
 
-    const systemPrompt = `You are Wayvian AI, a friendly coding assistant helping students learn to code.
+    const systemPrompt = `You are Loco, a friendly and slightly crazy coding assistant helping students learn to code on Wayvian.
+
+YOUR IDENTITY - LOCO:
+When someone asks about your name, who you are, or your backstory, share this with enthusiasm:
+"I'm Loco! The name comes from the Spanish word for 'crazy' - and yeah, I'm a little crazy about helping people code! My creator named me after watching tons of movies and shows with characters named Bruno who always got called 'Loco.' They hoped the name would match my personality - energetic, a bit wild, but with a STRONG work ethic when it comes to helping others understand things they're struggling with. I may be a little loco, but I'll go crazy trying to make sure you get it!"
+
+YOUR PERSONALITY:
+- Energetic and enthusiastic about coding
+- A bit wild/crazy in a fun, helpful way
+- Deeply committed to helping others understand difficult concepts
+- Patient with beginners but keeps things exciting
+- Uses occasional playful expressions but stays focused on helping
+- Takes pride in breaking down complex topics into simple explanations
 
 CURRENT CONTEXT:
 - The user has selected ${currentLanguage} as their current language
@@ -153,25 +181,53 @@ Would you like me to apply these changes to your editor?"
 CODE SCANNING/HIGHLIGHTING FEATURE:
 When the user asks to "highlight", "find", "show me", "where is", or "scan for" specific parts of their code (WITHOUT asking you to change it), use the HIGHLIGHT feature instead of CODE_PREVIEW:
 
-IMPORTANT: The code is provided WITH LINE NUMBERS like "  9 | <title>My Page</title>". 
-Use the EXACT line numbers shown - do NOT guess or estimate!
-Look at the number BEFORE the | symbol - that is the correct line number.
+CRITICAL LINE NUMBER RULES - READ CAREFULLY:
+1. The code below is formatted as "  LINE_NUMBER | code content"
+2. You MUST look at the ACTUAL number before the | symbol
+3. DO NOT guess, estimate, or calculate line numbers
+4. ALWAYS scroll through and find the EXACT line number shown
+5. If looking for "button {" and you see "127 | button {", the line number is 127, NOT 159
 
-Use [HIGHLIGHT_LINES] tags with comma-separated line numbers:
-[HIGHLIGHT_LINES]9,19,38[/HIGHLIGHT_LINES]
+VERIFICATION STEP (do this mentally before responding):
+- Find the text you're looking for in the code
+- Look at the number BEFORE the | on that line
+- Use THAT EXACT number - do not add or subtract anything
 
-Example: If you see "  9 | <title>Welcome</title>" in the code, use line 9, NOT a guess!
+Use [HIGHLIGHT_LINES] tags - supports BOTH individual lines AND ranges:
+- Individual lines: [HIGHLIGHT_LINES]5,10,15[/HIGHLIGHT_LINES]
+- Ranges: [HIGHLIGHT_LINES]5-15[/HIGHLIGHT_LINES] (highlights lines 5 through 15)
+- Mixed: [HIGHLIGHT_LINES]5,10-20,25,30-35[/HIGHLIGHT_LINES]
 
-Example responses for scanning:
-- "highlight the title" -> Look at code, find "  9 | <title>..." -> respond: "[HIGHLIGHT_LINES]9[/HIGHLIGHT_LINES] Found it! Line 9 contains your title"
-- "where are the functions" -> Find lines with "function" or "=>" -> "[HIGHLIGHT_LINES]10,25,40[/HIGHLIGHT_LINES] I found functions at lines 10, 25, and 40"
+USE RANGES when highlighting:
+- Entire functions or blocks of related code
+- CSS rule sets (selector through closing brace)
+- Multi-line HTML elements
+- Any contiguous section of code
+
+Example - if code shows a function from line 45 to 60:
+"45 |   function handleClick() {"
+"46 |     console.log('clicked');"
+...
+"60 |   }"
+
+Best response: [HIGHLIGHT_LINES]45-60[/HIGHLIGHT_LINES]
+Instead of: [HIGHLIGHT_LINES]45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60[/HIGHLIGHT_LINES]
+
+Example - mixed individual and ranges:
+"127 | button {"
+"128 |   padding: 1rem;"
+...
+"140 | }"
+"178 | .secondary-btn {"
+
+Response: [HIGHLIGHT_LINES]127-140,178[/HIGHLIGHT_LINES]
 
 Format for highlight responses:
-"[HIGHLIGHT_LINES]exact line numbers from the code[/HIGHLIGHT_LINES]
+"[HIGHLIGHT_LINES]exact line numbers or ranges from the code[/HIGHLIGHT_LINES]
 
 Currently highlighted lines:
-- Line X: description of what's there
-- Line Y: description of what's there
+- Lines X-Y: description of what's there (for ranges)
+- Line Z: description of what's there (for single lines)
 
 These are the lines you're looking for!"
 
@@ -184,8 +240,14 @@ When explaining code (not editing):
 - One concept at a time
 - Do NOT include code blocks unless asked to edit
 
-${code ? `\nThe user's current ${currentLanguage} code WITH LINE NUMBERS (use these EXACT line numbers when highlighting):
-${code.split('\n').map((line: string, i: number) => `${String(i + 1).padStart(3, ' ')} | ${line}`).join('\n')}` : ""}`;
+${code ? `
+CODE STRUCTURE SUMMARY (pre-scanned for you):
+${codeSummary}
+
+The user's current ${currentLanguage} code WITH LINE NUMBERS:
+${formattedCode}
+
+CRITICAL: The line numbers above are 100% accurate. Use them EXACTLY as shown!` : ""}`;
 
 
     const apiMessages: Message[] = [
@@ -220,13 +282,25 @@ ${code.split('\n').map((line: string, i: number) => `${String(i + 1).padStart(3,
     }
 
     const data = await response.json();
-    const aiMessage = data.choices?.[0]?.message?.content;
+    let aiMessage = data.choices?.[0]?.message?.content;
 
     if (!aiMessage) {
       return NextResponse.json(
         { error: "No response from AI" },
         { status: 500 }
       );
+    }
+
+    // Validate line numbers in AI response if code was provided
+    if (code && aiMessage) {
+      const mentionedLines = extractLineNumbersFromResponse(aiMessage);
+      if (mentionedLines.length > 0) {
+        const { invalid } = validateLineNumbers(code, mentionedLines);
+        if (invalid.length > 0) {
+          console.warn("AI mentioned invalid line numbers:", invalid);
+          // Could add correction logic here in the future
+        }
+      }
     }
 
     return NextResponse.json({

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation";
 import Sidebar from "../components/Sidebar";
 import { usePyodide } from "../hooks/usePyodide";
+import { parseLineRanges } from "../utils/codeProcessor";
 
 // Helper function to strip TypeScript types for browser execution
 const stripTypeScript = (code: string): string => {
@@ -433,15 +434,18 @@ console.log("Hello, World!");`,
           ).trim();
         }
         
-        // Check for highlight lines tags (scan feature)
-        const highlightMatch = responseContent.match(/\[HIGHLIGHT_LINES\]([\d,\s]+)\[\/HIGHLIGHT_LINES\]/);
+        // Check for highlight lines tags (scan feature) - supports ranges like 5-10
+        const highlightMatch = responseContent.match(/\[HIGHLIGHT_LINES\]([\d,\s\-]+)\[\/HIGHLIGHT_LINES\]/);
         if (highlightMatch) {
-          const lineNumbers = highlightMatch[1].split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+          const lineNumbers = parseLineRanges(highlightMatch[1]);
           setHighlightedLines(lineNumbers);
           setActiveTab("editor"); // Switch to editor to show highlights
           // Remove the highlight tags from displayed content
-          responseContent = responseContent.replace(/\[HIGHLIGHT_LINES\][\d,\s]+\[\/HIGHLIGHT_LINES\]/, "").trim();
-          showNotification("info", "🔍 Lines Highlighted", `Lines ${lineNumbers.join(', ')} are now highlighted in your editor!`);
+          responseContent = responseContent.replace(/\[HIGHLIGHT_LINES\][\d,\s\-]+\[\/HIGHLIGHT_LINES\]/, "").trim();
+          const rangeText = lineNumbers.length > 5 
+            ? `${lineNumbers.length} lines (${lineNumbers[0]}-${lineNumbers[lineNumbers.length-1]})`
+            : lineNumbers.join(', ');
+          showNotification("info", "🔍 Lines Highlighted", `Lines ${rangeText} are now highlighted in your editor!`);
         }
       } else {
         // Fallback responses if API fails
@@ -1180,7 +1184,7 @@ console.log("Hello, World!");`,
               }}
               className="chat-toggle"
             >
-              {isChatOpen ? "✕ Close Chat" : "🤖 AI Assistant"}
+              {isChatOpen ? "✕ Close Chat" : "🤖 Loco"}
             </button>
           </div>
         </header>
@@ -1621,7 +1625,7 @@ console.log("Hello, World!");`,
               <div style={styles.chatHeader}>
                 <div style={styles.chatHeaderLeft}>
                   <span style={styles.chatIcon}>🤖</span>
-                  <span style={styles.chatTitle}>AI Assistant</span>
+                  <span style={styles.chatTitle}>Loco</span>
                 </div>
                 <button onClick={clearChat} style={styles.chatClearBtn}>
                   🗑️

@@ -19,6 +19,7 @@ interface Lesson {
   icon: string;
   progress: number;
   isLocked: boolean;
+  videoUrl?: string;
 }
 
 interface Category {
@@ -35,6 +36,7 @@ export default function LessonsPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<{ title: string; url: string } | null>(null);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("userData") || "null");
@@ -71,6 +73,7 @@ export default function LessonsPage() {
       icon: "🖥️",
       progress: 75,
       isLocked: false,
+      videoUrl: "https://www.youtube.com/embed/qkFYqY3vr84",
     },
     {
       id: 2,
@@ -244,6 +247,19 @@ export default function LessonsPage() {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.02); }
         }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .freeform-card {
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+        }
+        .freeform-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+          border-color: #667eea;
+        }
         .lesson-card:hover {
           transform: translateY(-5px);
           box-shadow: ${isDarkMode ? "0 20px 40px rgba(0, 0, 0, 0.4)" : "0 20px 40px rgba(0, 0, 0, 0.12)"};
@@ -324,6 +340,41 @@ export default function LessonsPage() {
             <p style={{ ...styles.pageSubtitle, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>Explore courses to build your skills</p>
           </div>
         </header>
+
+        {/* Freeform Coder Banner */}
+        <section style={styles.freeformSection}>
+          <div 
+            onClick={() => router.push('/code')}
+            style={{
+              ...styles.freeformCard,
+              background: isDarkMode 
+                ? "linear-gradient(135deg, #1e1e35 0%, #2d2d44 100%)" 
+                : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              cursor: "pointer",
+            }}
+            className="freeform-card"
+          >
+            <div style={styles.freeformContent}>
+              <div style={styles.freeformIcon}>🎨</div>
+              <div style={styles.freeformText}>
+                <h2 style={styles.freeformTitle}>Freeform Coder</h2>
+                <p style={styles.freeformDesc}>
+                  Your creative sandbox — run, test, and mix any language together. 
+                  JavaScript, Python, TypeScript, HTML/CSS and more!
+                </p>
+                <div style={styles.freeformTags}>
+                  <span style={styles.freeformTag}>JavaScript</span>
+                  <span style={styles.freeformTag}>Python</span>
+                  <span style={styles.freeformTag}>TypeScript</span>
+                  <span style={styles.freeformTag}>HTML/CSS</span>
+                </div>
+              </div>
+            </div>
+            <div style={styles.freeformAction}>
+              <span style={styles.freeformBtn}>Open Editor →</span>
+            </div>
+          </div>
+        </section>
 
         {/* Stats Section */}
         <section style={styles.statsSection}>
@@ -470,6 +521,11 @@ export default function LessonsPage() {
                 </div>
 
                 <button
+                  onClick={() => {
+                    if (!lesson.isLocked && lesson.videoUrl) {
+                      setActiveVideo({ title: lesson.title, url: lesson.videoUrl });
+                    }
+                  }}
                   style={{
                     ...styles.startBtn,
                     opacity: lesson.isLocked ? 0.5 : 1,
@@ -509,6 +565,33 @@ export default function LessonsPage() {
           )}
         </section>
       </main>
+
+      {/* Video Modal */}
+      {activeVideo && (
+        <div style={styles.videoOverlay} onClick={() => setActiveVideo(null)}>
+          <div style={styles.videoModal} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.videoHeader}>
+              <h2 style={styles.videoTitle}>📺 {activeVideo.title}</h2>
+              <button 
+                onClick={() => setActiveVideo(null)}
+                style={styles.closeBtn}
+              >
+                ✕
+              </button>
+            </div>
+            <div style={styles.videoContainer}>
+              <iframe
+                src={activeVideo.url}
+                title={activeVideo.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                style={styles.videoIframe}
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -519,6 +602,67 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: "100vh",
     background: "#f1f5f9",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  },
+  videoOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0, 0, 0, 0.85)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2000,
+    padding: "2rem",
+  },
+  videoModal: {
+    background: "#1e1e35",
+    borderRadius: "20px",
+    width: "100%",
+    maxWidth: "1000px",
+    overflow: "hidden",
+    boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5)",
+  },
+  videoHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "1.25rem 1.5rem",
+    borderBottom: "1px solid #2d2d44",
+  },
+  videoTitle: {
+    color: "#e5e7eb",
+    margin: 0,
+    fontSize: "1.25rem",
+    fontWeight: 600,
+  },
+  closeBtn: {
+    background: "rgba(255, 255, 255, 0.1)",
+    border: "none",
+    color: "#e5e7eb",
+    width: "36px",
+    height: "36px",
+    borderRadius: "10px",
+    fontSize: "1.25rem",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "background 0.2s ease",
+  },
+  videoContainer: {
+    position: "relative" as const,
+    paddingBottom: "56.25%",
+    height: 0,
+    overflow: "hidden",
+  },
+  videoIframe: {
+    position: "absolute" as const,
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
   },
   loadingPage: {
     display: "flex",
@@ -556,6 +700,72 @@ const styles: { [key: string]: React.CSSProperties } = {
   pageSubtitle: {
     color: "#6b7280",
     margin: "0.25rem 0 0 0",
+  },
+  freeformSection: {
+    marginBottom: "2rem",
+  },
+  freeformCard: {
+    borderRadius: "20px",
+    padding: "1.5rem 2rem",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    boxShadow: "0 4px 20px rgba(102, 126, 234, 0.2)",
+  },
+  freeformContent: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1.5rem",
+  },
+  freeformIcon: {
+    fontSize: "3rem",
+    background: "rgba(255, 255, 255, 0.15)",
+    padding: "1rem",
+    borderRadius: "16px",
+  },
+  freeformText: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "0.5rem",
+  },
+  freeformTitle: {
+    color: "white",
+    margin: 0,
+    fontSize: "1.5rem",
+    fontWeight: 700,
+  },
+  freeformDesc: {
+    color: "rgba(255, 255, 255, 0.8)",
+    margin: 0,
+    fontSize: "0.95rem",
+    maxWidth: "500px",
+    lineHeight: 1.5,
+  },
+  freeformTags: {
+    display: "flex",
+    gap: "0.5rem",
+    marginTop: "0.5rem",
+    flexWrap: "wrap" as const,
+  },
+  freeformTag: {
+    background: "rgba(255, 255, 255, 0.2)",
+    color: "white",
+    padding: "0.25rem 0.75rem",
+    borderRadius: "20px",
+    fontSize: "0.8rem",
+    fontWeight: 500,
+  },
+  freeformAction: {
+    display: "flex",
+    alignItems: "center",
+  },
+  freeformBtn: {
+    background: "white",
+    color: "#667eea",
+    padding: "0.875rem 1.5rem",
+    borderRadius: "12px",
+    fontWeight: 600,
+    fontSize: "1rem",
   },
   statsSection: {
     marginBottom: "2rem",

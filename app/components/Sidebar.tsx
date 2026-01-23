@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface NavItem {
   id: string;
@@ -34,18 +36,8 @@ export default function Sidebar({ isMenuOpen, setIsMenuOpen, userInitial = "U" }
     router.push("/");
   };
 
-  const handleNavClick = (item: NavItem) => {
-    router.push(item.path);
-    setIsMenuOpen(false);
-  };
-
   const isActive = (item: NavItem) => {
-    if (item.path === "/dashboard" && pathname === "/dashboard") return true;
-    if (item.path === "/lessons" && pathname === "/lessons") return true;
-    if (item.path === "/code" && pathname === "/code") return true;
-    if (item.path === "/settings" && pathname === "/settings") return true;
-    if (item.path === "/profile" && pathname === "/profile") return true;
-    return false;
+    return pathname === item.path;
   };
 
   return (
@@ -99,15 +91,16 @@ export default function Sidebar({ isMenuOpen, setIsMenuOpen, userInitial = "U" }
 
           <nav style={styles.nav}>
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.id}
+                href={item.path}
                 className={`sidebar-nav-item ${isActive(item) ? "active" : ""}`}
-                onClick={() => handleNavClick(item)}
+                onClick={() => setIsMenuOpen(false)}
                 style={styles.navItem}
               >
                 <span style={styles.navIcon}>{item.icon}</span>
                 <span>{item.label}</span>
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -221,6 +214,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "10px",
     transition: "all 0.2s ease",
     textAlign: "left" as const,
+    textDecoration: "none",
   },
   navIcon: {
     fontSize: "1.25rem",
