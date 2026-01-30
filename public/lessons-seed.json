@@ -1,0 +1,178 @@
+{
+  "categories": [
+    { "id": "all", "name": "All Lessons", "icon": "📚", "color": "#667eea" },
+    { "id": "tech", "name": "Technology", "icon": "💻", "color": "#3b82f6" },
+    { "id": "business", "name": "Business", "icon": "📈", "color": "#10b981" },
+    { "id": "design", "name": "Design", "icon": "🎨", "color": "#f59e0b" },
+    { "id": "soft-skills", "name": "Soft Skills", "icon": "🗣️", "color": "#ec4899" },
+    { "id": "career", "name": "Career Growth", "icon": "🚀", "color": "#8b5cf6" }
+  ],
+  "lessons": [
+    {
+      "id": 1,
+      "title": "Introduction to Programming",
+      "description": "Learn the fundamentals of programming with hands-on exercises and real-world examples.",
+      "duration": "2h 30m",
+      "level": "Beginner",
+      "category": "tech",
+      "icon": "🖥️",
+      "progress": 0,
+      "isLocked": false,
+      "videoUrl": "https://www.youtube.com/embed/qkFYqY3vr84"
+    },
+    {
+      "id": 2,
+      "title": "Web Development Basics",
+      "description": "Master HTML, CSS, and JavaScript to build modern, responsive websites.",
+      "duration": "4h 15m",
+      "level": "Beginner",
+      "category": "tech",
+      "icon": "🌐",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 3,
+      "title": "Data Analysis Fundamentals",
+      "description": "Discover how to analyze and visualize data to make informed decisions.",
+      "duration": "3h 45m",
+      "level": "Intermediate",
+      "category": "tech",
+      "icon": "📊",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 4,
+      "title": "Advanced CSS Techniques",
+      "description": "Master animations, transitions, and modern CSS frameworks for stunning designs.",
+      "duration": "3h 00m",
+      "level": "Intermediate",
+      "category": "design",
+      "icon": "✨",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 5,
+      "title": "Communication for Tech Professionals",
+      "description": "Improve your presentation and communication skills in technical environments.",
+      "duration": "2h 00m",
+      "level": "Beginner",
+      "category": "soft-skills",
+      "icon": "💬",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 6,
+      "title": "Python for Data Science",
+      "description": "Use Python libraries like Pandas and NumPy to analyze and manipulate data efficiently.",
+      "duration": "4h 30m",
+      "level": "Intermediate",
+      "category": "tech",
+      "icon": "🐍",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 7,
+      "title": "Project Management Essentials",
+      "description": "Learn methodologies and tools to manage projects effectively from start to finish.",
+      "duration": "3h 30m",
+      "level": "Beginner",
+      "category": "business",
+      "icon": "📋",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 8,
+      "title": "Interview Preparation",
+      "description": "Ace your next job interview with proven strategies and practice sessions.",
+      "duration": "1h 45m",
+      "level": "Beginner",
+      "category": "career",
+      "icon": "🎯",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 9,
+      "title": "Advanced JavaScript",
+      "description": "Deep dive into advanced JS concepts including async programming and design patterns.",
+      "duration": "5h 00m",
+      "level": "Advanced",
+      "category": "tech",
+      "icon": "⚡",
+      "progress": 0,
+      "isLocked": true
+    },
+    {
+      "id": 10,
+      "title": "Personal Branding",
+      "description": "Build a powerful personal brand that sets you apart in your industry.",
+      "duration": "2h 15m",
+      "level": "Beginner",
+      "category": "career",
+      "icon": "🌟",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 11,
+      "title": "Financial Literacy",
+      "description": "Understand budgeting, investing, and financial planning for career success.",
+      "duration": "3h 00m",
+      "level": "Beginner",
+      "category": "business",
+      "icon": "💰",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 12,
+      "title": "Leadership Skills",
+      "description": "Develop essential leadership qualities to inspire and guide teams.",
+      "duration": "2h 30m",
+      "level": "Intermediate",
+      "category": "soft-skills",
+      "icon": "👑",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 13,
+      "title": "Graphic Design Basics",
+      "description": "Learn design principles, color theory, and tools to create visually appealing graphics.",
+      "duration": "2h 45m",
+      "level": "Beginner",
+      "category": "design",
+      "icon": "🎨",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 14,
+      "title": "React Advanced Patterns",
+      "description": "Master hooks, context, and advanced state management in modern React applications.",
+      "duration": "3h 15m",
+      "level": "Advanced",
+      "category": "tech",
+      "icon": "⚛️",
+      "progress": 0,
+      "isLocked": false
+    },
+    {
+      "id": 15,
+      "title": "Machine Learning Fundamentals",
+      "description": "Introduction to ML concepts, algorithms, and how to build your first ML model.",
+      "duration": "4h 00m",
+      "level": "Intermediate",
+      "category": "tech",
+      "icon": "🤖",
+      "progress": 0,
+      "isLocked": false
+    }
+  ]
+}

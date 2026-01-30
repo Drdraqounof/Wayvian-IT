@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lesson {
+  id        Int     @id @default(autoincrement())
+  title     String
+  description String
+  duration  String
+  level     String  // "Beginner" | "Intermediate" | "Advanced"
+  category  String
+  icon      String
+  progress  Int     @default(0)
+  isLocked  Boolean @default(false)
+  videoUrl  String?
+  content   String? // Lesson content/markdown
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("lessons")
+}
+
+model Category {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  icon  String
+  color String
+
+  @@map("categories")
+}
+
+model UserProgress {
+  id        Int     @id @default(autoincrement())
+  userId    String
+  lessonId  Int
+  progress  Int     @default(0)
+  completed Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@map("user_progress")
+}

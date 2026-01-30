@@ -1,0 +1,35 @@
+-- Create tables directly
+
+CREATE TABLE IF NOT EXISTS "categories" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "name" TEXT NOT NULL UNIQUE,
+  "icon" TEXT NOT NULL,
+  "color" TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "lessons" (
+  "id" SERIAL NOT NULL PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "duration" TEXT NOT NULL,
+  "level" TEXT NOT NULL,
+  "category" TEXT NOT NULL,
+  "icon" TEXT NOT NULL,
+  "progress" INTEGER NOT NULL DEFAULT 0,
+  "isLocked" BOOLEAN NOT NULL DEFAULT false,
+  "videoUrl" TEXT,
+  "content" TEXT,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS "user_progress" (
+  "id" SERIAL NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "lessonId" INTEGER NOT NULL,
+  "progress" INTEGER NOT NULL DEFAULT 0,
+  "completed" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE("userId", "lessonId")
+);

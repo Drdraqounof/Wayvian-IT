@@ -37,6 +37,9 @@ export default function LessonsPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeVideo, setActiveVideo] = useState<{ title: string; url: string } | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("userData") || "null");
@@ -53,7 +56,26 @@ export default function LessonsPage() {
     }
   }, [router]);
 
-  const categories: Category[] = [
+  // Load lessons and categories from seed data
+  useEffect(() => {
+    const loadLessonsData = async () => {
+      try {
+        const response = await fetch('/lessons-seed.json');
+        const data = await response.json();
+        setCategories(data.categories);
+        setLessons(data.lessons);
+      } catch (error) {
+        console.error('Error loading lessons data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLessonsData();
+  }, []);
+
+  // Default categories if seed data fails to load
+  const defaultCategories: Category[] = [
     { id: "all", name: "All Lessons", icon: "📚", color: "#667eea" },
     { id: "tech", name: "Technology", icon: "💻", color: "#3b82f6" },
     { id: "business", name: "Business", icon: "📈", color: "#10b981" },
@@ -62,7 +84,8 @@ export default function LessonsPage() {
     { id: "career", name: "Career Growth", icon: "🚀", color: "#8b5cf6" },
   ];
 
-  const lessons: Lesson[] = [
+  const displayCategories = categories.length > 0 ? categories : defaultCategories;
+  const displayLessons: Lesson[] = lessons.length > 0 ? lessons : [
     {
       id: 1,
       title: "Introduction to Programming",
@@ -185,20 +208,9 @@ export default function LessonsPage() {
       progress: 0,
       isLocked: false,
     },
-    {
-      id: 12,
-      title: "Graphic Design Basics",
-      description: "Learn design fundamentals including color theory, typography, and composition.",
-      duration: "3h 15m",
-      level: "Beginner",
-      category: "design",
-      icon: "🎭",
-      progress: 0,
-      isLocked: false,
-    },
   ];
 
-  const filteredLessons = lessons.filter((lesson) => {
+  const filteredLessons = displayLessons.filter((lesson) => {
     const matchesCategory = selectedCategory === "all" || lesson.category === selectedCategory;
     const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -213,9 +225,9 @@ export default function LessonsPage() {
     }
   };
 
-  const completedLessons = lessons.filter(l => l.progress === 100).length;
-  const inProgressLessons = lessons.filter(l => l.progress > 0 && l.progress < 100).length;
-  const totalHours = lessons.reduce((acc, l) => {
+  const completedLessons = displayLessons.filter(l => l.progress === 100).length;
+  const inProgressLessons = displayLessons.filter(l => l.progress > 0 && l.progress < 100).length;
+  const totalHours = displayLessons.reduce((acc, l) => {
     const hours = parseFloat(l.duration.split("h")[0]);
     return acc + hours;
   }, 0);
@@ -436,7 +448,7 @@ export default function LessonsPage() {
 
           {/* Categories */}
           <div className="categories-grid" style={styles.categoriesGrid}>
-            {categories.map((category) => (
+            {displayCategories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
@@ -522,8 +534,8 @@ export default function LessonsPage() {
 
                 <button
                   onClick={() => {
-                    if (!lesson.isLocked && lesson.videoUrl) {
-                      setActiveVideo({ title: lesson.title, url: lesson.videoUrl });
+                    if (!lesson.isLocked) {
+                      router.push(`/lessons/${lesson.id}`);
                     }
                   }}
                   style={{
